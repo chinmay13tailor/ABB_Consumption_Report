@@ -9,316 +9,110 @@
 
 <style>
 :root {
-  --bg:        #0d1117;
-  --surface:   #161b22;
-  --surface2:  #1c2430;
-  --border:    #30363d;
-  --accent:    #00c9a7;
-  --accent2:   #3b82f6;
-  --warn:      #f59e0b;
-  --danger:    #ef4444;
-  --text:      #e6edf3;
-  --muted:     #8b949e;
-  --r:         #f87171;
-  --y:         #fbbf24;
-  --b:         #60a5fa;
+  --bg:      #f0f4f8;
+  --surface: #ffffff;
+  --surface2:#f8fafc;
+  --border:  #e2e8f0;
+  --accent:  #0e9f7e;
+  --accent2: #2563eb;
+  --warn:    #d97706;
+  --danger:  #dc2626;
+  --text:    #1e293b;
+  --muted:   #64748b;
+  --shadow:  0 1px 4px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.05);
 }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 30px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.header-left{display:flex;align-items:center;gap:14px;}
+.logo{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.header h1{font-size:17px;font-weight:700;}
+.header p{font-size:12px;color:var(--muted);margin-top:2px;}
+.device-badge{font-family:'Space Mono',monospace;font-size:10px;background:#f1f5f9;border:1px solid var(--border);padding:6px 12px;border-radius:20px;color:var(--accent);}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
+/* FILTER */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 30px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.filter-bar label{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.filter-bar input[type="date"]{background:#f8fafc;border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.filter-bar input[type="date"]:focus{border-color:var(--accent);}
+.btn{padding:9px 22px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0b8a6e);color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 2px 8px rgba(14,159,126,.3);}
+.btn:hover{opacity:.9;transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.status-pill{margin-left:auto;font-size:12px;padding:5px 12px;border-radius:20px;background:#f1f5f9;border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);}
+.dot.live{background:var(--accent);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+#loader{display:none;align-items:center;gap:8px;font-size:13px;color:var(--accent);}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* ── HEADER ── */
-.header {
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 30px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.header-left { display: flex; align-items: center; gap: 14px; }
-.logo {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-}
-.header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
-.header p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.device-badge {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  padding: 6px 12px;
-  border-radius: 20px;
-  color: var(--accent);
-}
+/* MAIN */
+.main{padding:22px 30px;}
+#errorMsg{display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 18px;border-radius:8px;font-size:13px;margin-bottom:16px;}
 
-/* ── FILTER ── */
-.filter-bar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 30px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.filter-bar label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
-.filter-bar input[type="date"] {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 9px 14px;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.filter-bar input[type="date"]:focus { border-color: var(--accent); }
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
+.kpi-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(14,159,126,.12);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .2s;}
+.kpi-card:hover::before{opacity:1;}
+.kpi-icon{font-size:20px;margin-bottom:10px;}
+.kpi-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.kpi-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--text);}
+.kpi-unit{font-size:12px;color:var(--muted);margin-top:3px;}
 
-.btn {
-  padding: 9px 22px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), #00a88e);
-  color: #0d1117;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
-}
-.btn:hover  { opacity: 0.9; transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+/* SECTION TITLE */
+.section-title{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:24px 0 12px;display:flex;align-items:center;gap:10px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-.status-pill {
-  margin-left: auto;
-  font-size: 12px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
-.dot.live { background: var(--accent); animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:0.4 } }
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.chart-title span{color:var(--muted);font-weight:400;}
 
-/* ── MAIN ── */
-.main { padding: 24px 30px; }
+/* PHASE CARDS */
+.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.phase-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow);}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.phase-dot{width:10px;height:10px;border-radius:50%;}
+.phase-name{font-weight:700;font-size:15px;}
+.phase-badge{margin-left:auto;font-size:10px;font-family:'Space Mono',monospace;padding:3px 8px;border-radius:4px;}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.metric-row:last-of-type{border-bottom:none;}
+.metric-label{color:var(--muted);}
+.metric-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;}
+.mini-bar-wrap{height:4px;background:var(--border);border-radius:4px;margin:4px 0 8px;}
+.mini-bar{height:100%;border-radius:4px;transition:width .6s ease;}
 
-/* ── KPI ── */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-  margin-bottom: 22px;
-}
-.kpi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px 20px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-.kpi-card:hover { border-color: var(--accent); }
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.kpi-card:hover::before { opacity: 1; }
-.kpi-icon { font-size: 20px; margin-bottom: 10px; }
-.kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
-.kpi-val   { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; color: var(--text); }
-.kpi-unit  { font-size: 12px; color: var(--muted); margin-top: 3px; }
-.kpi-sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+/* SUMMARY CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;box-shadow:var(--shadow);}
+.sum-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.sum-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--text);}
+.sum-unit{font-size:11px;color:var(--muted);margin-top:2px;}
 
-/* ── SECTION TITLE ── */
-.section-title {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 26px 0 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
+/* TABLE */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:2px solid var(--border);}
+th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);text-align:center;background:#f8fafc;}
+td{padding:11px 14px;font-size:13px;text-align:center;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#f8fafc;}
+.td-hour{font-weight:700;color:var(--text);}
+.pf-ok{color:var(--accent);}
+.pf-warn{color:var(--warn);}
+.pf-bad{color:var(--danger);}
 
-/* ── CHART GRID ── */
-.chart-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin-bottom: 22px;
-}
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-}
-.chart-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.chart-title span { color: var(--muted); font-weight: 400; }
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty .ico{font-size:36px;margin-bottom:10px;}
 
-/* ── PHASE GRID ── */
-.phase-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 22px;
-}
-.phase-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  transition: border-color 0.2s;
-}
-.phase-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.phase-dot { width: 10px; height: 10px; border-radius: 50%; }
-.phase-name { font-weight: 700; font-size: 14px; }
-.phase-badge { margin-left: auto; font-size: 10px; font-family: 'Space Mono', monospace; padding: 3px 8px; border-radius: 4px; }
-
-.metric-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-.metric-row:last-child { border-bottom: none; }
-.metric-label { color: var(--muted); }
-.metric-val   { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; }
-
-.mini-bar-wrap { height: 4px; background: var(--border); border-radius: 4px; margin-top: 4px; }
-.mini-bar      { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-
-/* ── TABLE ── */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  overflow-x: auto;
-}
-table { width: 100%; border-collapse: collapse; }
-thead tr { border-bottom: 2px solid var(--border); }
-th {
-  padding: 10px 14px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-align: center;
-}
-td {
-  padding: 11px 14px;
-  font-size: 13px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  font-family: 'Space Mono', monospace;
-}
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: var(--surface2); }
-.td-hour { font-weight: 700; color: var(--text); }
-.pf-ok   { color: var(--accent); }
-.pf-warn { color: var(--warn); }
-.pf-bad  { color: var(--danger); }
-
-/* ── EMPTY STATE ── */
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-}
-.empty .ico { font-size: 40px; margin-bottom: 12px; }
-.empty p { font-size: 14px; }
-
-/* ── LOADING ── */
-#loader {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--accent);
-}
-.spin {
-  width: 16px; height: 16px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── ERROR TOAST ── */
-#errorMsg {
-  display: none;
-  background: #3b0f0f;
-  border: 1px solid var(--danger);
-  color: #fca5a5;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  margin-top: 12px;
-}
-
-/* responsive */
-@media (max-width: 900px) {
-  .kpi-grid   { grid-template-columns: repeat(3,1fr); }
-  .chart-grid { grid-template-columns: 1fr; }
-  .phase-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 600px) {
-  .kpi-grid { grid-template-columns: repeat(2,1fr); }
-  .main { padding: 16px; }
-  .filter-bar { padding: 12px 16px; }
-  .header { padding: 14px 16px; }
-}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.chart-grid{grid-template-columns:1fr;}.phase-grid{grid-template-columns:1fr;}.summary-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.main{padding:14px;}}
 </style>
 </head>
 <body>
@@ -329,7 +123,7 @@ tbody tr:hover { background: var(--surface2); }
     <div class="logo">❄️</div>
     <div>
       <h1>Chiller Plant 1 – Energy Report</h1>
-      <p>Electrical & Power Quality Analysis Dashboard</p>
+      <p>Electrical &amp; Power Quality Analysis Dashboard</p>
     </div>
   </div>
   <div class="device-badge">DEV · 1250b550-5bdb-11f0-9b14-15d3b3a473c1</div>
@@ -349,81 +143,53 @@ tbody tr:hover { background: var(--surface2); }
 
   <!-- KPI ROW -->
   <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-icon">⚡</div>
-      <div class="kpi-label">Total Energy</div>
-      <div class="kpi-val" id="kTotalEnergy">--</div>
-      <div class="kpi-unit">kWh</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon">📊</div>
-      <div class="kpi-label">Avg Active Power</div>
-      <div class="kpi-val" id="kAvgPower">--</div>
-      <div class="kpi-unit">kW</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon">🔺</div>
-      <div class="kpi-label">Max Active Power</div>
-      <div class="kpi-val" id="kMaxPower">--</div>
-      <div class="kpi-unit">kW</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon">🔋</div>
-      <div class="kpi-label">Avg Power Factor</div>
-      <div class="kpi-val" id="kAvgPF">--</div>
-      <div class="kpi-unit">p.u.</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon">⚠️</div>
-      <div class="kpi-label">Min Power Factor</div>
-      <div class="kpi-val" id="kMinPF">--</div>
-      <div class="kpi-unit">p.u.</div>
-    </div>
+    <div class="kpi-card"><div class="kpi-icon">⚡</div><div class="kpi-label">Total Energy</div><div class="kpi-val" id="kTotalEnergy">--</div><div class="kpi-unit">kWh</div></div>
+    <div class="kpi-card"><div class="kpi-icon">📊</div><div class="kpi-label">Avg Active Power</div><div class="kpi-val" id="kAvgPower">--</div><div class="kpi-unit">kW</div></div>
+    <div class="kpi-card"><div class="kpi-icon">🔺</div><div class="kpi-label">Max Active Power</div><div class="kpi-val" id="kMaxPower">--</div><div class="kpi-unit">kW</div></div>
+    <div class="kpi-card"><div class="kpi-icon">🔋</div><div class="kpi-label">Avg Power Factor</div><div class="kpi-val" id="kAvgPF">--</div><div class="kpi-unit">p.u.</div></div>
+    <div class="kpi-card"><div class="kpi-icon">⚠️</div><div class="kpi-label">Min Power Factor</div><div class="kpi-val" id="kMinPF">--</div><div class="kpi-unit">p.u.</div></div>
   </div>
 
-  <!-- CHARTS -->
+  <!-- ELECTRICAL SUMMARY -->
+  <div class="section-title">Electrical Summary (Latest)</div>
+  <div class="summary-grid">
+    <div class="sum-card"><div class="sum-label">Avg Voltage L-L</div><div class="sum-val" id="sVLL">--</div><div class="sum-unit">Volts</div></div>
+    <div class="sum-card"><div class="sum-label">Avg Voltage L-N</div><div class="sum-val" id="sVLN">--</div><div class="sum-unit">Volts</div></div>
+    <div class="sum-card"><div class="sum-label">Avg Current</div><div class="sum-val" id="sIAvg">--</div><div class="sum-unit">Amperes</div></div>
+    <div class="sum-card"><div class="sum-label">Frequency</div><div class="sum-val" id="sFreq">--</div><div class="sum-unit">Hz</div></div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
   <div class="section-title">Hourly Trend Analysis</div>
   <div class="chart-grid">
-    <div class="chart-card">
-      <div class="chart-title">⚡ Hourly Energy Consumption <span>(kWh per hour)</span></div>
-      <div id="energyChart"></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">📈 Active Power & Power Factor Trend</div>
-      <div id="trendChart"></div>
-    </div>
+    <div class="chart-card"><div class="chart-title">⚡ Hourly Energy Consumption <span>(kWh per hour)</span></div><div id="energyChart"></div></div>
+    <div class="chart-card"><div class="chart-title">📈 Active Power &amp; Power Factor Trend</div><div id="trendChart"></div></div>
   </div>
 
-  <!-- VOLTAGE CHARTS -->
+  <!-- CHARTS ROW 2 -->
   <div class="chart-grid">
-    <div class="chart-card">
-      <div class="chart-title">🔌 Line-to-Line Voltage Trend <span>(V)</span></div>
-      <div id="voltLL"></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">🔌 Phase Current Trend <span>(A)</span></div>
-      <div id="currentChart"></div>
-    </div>
+    <div class="chart-card"><div class="chart-title">🔌 Line-to-Line Voltage Trend <span>(V)</span></div><div id="voltLLChart"></div></div>
+    <div class="chart-card"><div class="chart-title">〰️ Phase Current Trend <span>(A)</span></div><div id="currentChart"></div></div>
   </div>
 
-  <!-- PHASE SECTION -->
-  <div class="section-title">Phase-wise Electrical Analysis <span style="font-size:11px;font-weight:400;">(Latest snapshot)</span></div>
+  <!-- CHARTS ROW 3 -->
+  <div class="chart-grid">
+    <div class="chart-card"><div class="chart-title">🔌 Phase-to-Neutral Voltage Trend <span>(V)</span></div><div id="voltLNChart"></div></div>
+    <div class="chart-card"><div class="chart-title">🌀 Frequency Trend <span>(Hz)</span></div><div id="freqChart"></div></div>
+  </div>
+
+  <!-- PHASE CARDS -->
+  <div class="section-title">Phase-wise Electrical Analysis <span style="font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;">(Latest Snapshot)</span></div>
   <div class="phase-grid">
-    <div class="phase-card" id="phaseR">
-      <div class="empty"><div class="ico">📡</div><p>Generate report to view phase data</p></div>
-    </div>
-    <div class="phase-card" id="phaseY">
-      <div class="empty"><div class="ico">📡</div><p></p></div>
-    </div>
-    <div class="phase-card" id="phaseB">
-      <div class="empty"><div class="ico">📡</div><p></p></div>
-    </div>
+    <div class="phase-card" id="phaseR"><div class="empty"><div class="ico">📡</div><p>Generate report to view</p></div></div>
+    <div class="phase-card" id="phaseY"><div class="empty"><div class="ico">📡</div><p></p></div></div>
+    <div class="phase-card" id="phaseB"><div class="empty"><div class="ico">📡</div><p></p></div></div>
   </div>
 
   <!-- TABLE -->
   <div class="section-title">Hourly Summary Table</div>
   <div class="table-card">
-    <table id="mainTable">
+    <table>
       <thead>
         <tr>
           <th>Hour</th>
@@ -431,76 +197,110 @@ tbody tr:hover { background: var(--surface2); }
           <th>Avg Power (kW)</th>
           <th>Max Power (kW)</th>
           <th>Avg PF</th>
-          <th>Avg Voltage LL (V)</th>
+          <th>Avg V-LL (V)</th>
+          <th>Avg V-LN (V)</th>
           <th>Avg Current (A)</th>
           <th>Frequency (Hz)</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="8" style="color:var(--muted);padding:40px">Select a date and click Generate Report</td></tr>
+        <tr><td colspan="9" style="color:var(--muted);padding:36px">Select a date and click Generate Report</td></tr>
       </tbody>
     </table>
   </div>
-
 </div><!-- /main -->
 
 <script>
-/* ── CONFIG ── */
-const DEVICE_ID = "1250b550-5bdb-11f0-9b14-15d3b3a473c1";
-const API       = "https://plantwiz.pimateck.in/api";
-const TOKEN     = new URLSearchParams(location.search).get("token");
+/* ════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════ */
+const DEVICE_ID  = "1250b550-5bdb-11f0-9b14-15d3b3a473c1";
+const API        = "https://plantwiz.pimateck.in/api";
+const TOKEN      = new URLSearchParams(location.search).get("token");
 
-/* Keys to fetch */
-const KEYS_MAIN  = "chiller_plant_1";                     // main snapshot telemetry
-const KEY_ENERGY = "Chiller_1_per_min_consumption";       // per-minute kWh → sum per hour
-const KEY_POWER  = "chiller_1_Active_Power";              // per-minute kW → avg per hour
+/*
+  Telemetry keys:
+  - KEY_MAIN   : "chiller_plant_1"  → each point's value is a JSON string containing
+                  all electrical parameters with prefix "18_"
+  - KEY_ENERGY : per-minute kWh consumption → sum per hour
+  - KEY_POWER  : per-minute active power (kW) → avg/max per hour
+*/
+const KEY_MAIN   = "chiller_plant_1";
+const KEY_ENERGY = "Chiller_1_per_min_consumption";
+const KEY_POWER  = "chiller_1_Active_Power";
 
-/* ── HELPERS ── */
-const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
-const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-const safeMin = arr => arr.length ? Math.min(...arr) : 0;
-const safeMax = arr => arr.length ? Math.max(...arr) : 0;
+/*
+  Field mapping inside the parsed JSON of chiller_plant_1:
+  ┌─────────────────────────┬──────────────────────────┐
+  │ JSON field              │ Meaning                  │
+  ├─────────────────────────┼──────────────────────────┤
+  │ 18_R_Current            │ R phase current (A)      │
+  │ 18_Y_Current            │ Y phase current (A)      │
+  │ 18_B_Current            │ B phase current (A)      │
+  │ 18_Avg_Current          │ Average current (A)      │
+  │ 18_Voltage_RY           │ Line voltage R-Y (V)     │
+  │ 18_Voltage_YB           │ Line voltage Y-B (V)     │
+  │ 18_Voltage_BR           │ Line voltage B-R (V)     │
+  │ 18_Avg_Voltage_LL       │ Avg line voltage LL (V)  │
+  │ 18_Voltage_RN           │ Phase voltage R-N (V)    │
+  │ 18_Voltage_YN           │ Phase voltage Y-N (V)    │
+  │ 18_Voltage_BN           │ Phase voltage B-N (V)    │
+  │ 18_Avg_Voltage_LN       │ Avg phase voltage LN (V) │
+  │ 18_Freq                 │ Frequency (Hz)           │
+  │ 18_Avg_PF               │ Power Factor             │
+  └─────────────────────────┴──────────────────────────┘
+*/
 
-function setStatus(txt, live=false){
-  document.getElementById('statusText').textContent = txt;
-  document.getElementById('statusDot').className   = 'dot' + (live ? ' live' : '');
-}
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+const num  = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+const avg  = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const sMax = a => a.length ? Math.max(...a) : 0;
+const sMin = a => a.length ? Math.min(...a) : 0;
+const fmt  = (v, dp=2) => v != null ? v.toFixed(dp) : '—';
 
-function showError(msg){
-  const el = document.getElementById('errorMsg');
-  el.textContent = '⚠️  ' + msg;
-  el.style.display = 'block';
-}
-function hideError(){ document.getElementById('errorMsg').style.display='none'; }
+const COL_R = '#ef4444';
+const COL_Y = '#d97706';
+const COL_B = '#2563eb';
 
-/* ── PLOTLY THEME ── */
-const LAYOUT_BASE = {
+/* Plotly light theme */
+const LB = {
   paper_bgcolor: 'transparent',
   plot_bgcolor:  'transparent',
-  font: { family: 'DM Sans', color: '#8b949e', size: 11 },
-  margin: { t: 10, r: 10, b: 40, l: 45 },
-  legend: { orientation: 'h', y: -0.25, font:{size:11} },
-  xaxis: { gridcolor:'#30363d', linecolor:'#30363d', tickfont:{size:10} },
-  yaxis: { gridcolor:'#30363d', linecolor:'#30363d', tickfont:{size:10} },
+  font: { family:'DM Sans', color:'#64748b', size:11 },
+  margin: { t:8, r:14, b:42, l:50 },
+  legend: { orientation:'h', y:-0.30, font:{size:11} },
+  xaxis: { gridcolor:'#e2e8f0', linecolor:'#cbd5e1', tickfont:{size:10} },
+  yaxis: { gridcolor:'#e2e8f0', linecolor:'#cbd5e1', tickfont:{size:10} },
 };
-const CONF = { displayModeBar: false, responsive: true };
+const CFG = { displayModeBar:false, responsive:true };
 
-/* ── FETCH helper ── */
-async function fetchTelemetry(keys, startTs, endTs){
-  const url = `${API}/plugins/telemetry/DEVICE/${DEVICE_ID}/values/timeseries?keys=${keys}&startTs=${startTs}&endTs=${endTs}&limit=50000`;
-  const res  = await fetch(url, { headers:{ "X-Authorization":"Bearer "+TOKEN }});
-  if(!res.ok) throw new Error(`API error ${res.status}`);
-  return res.json();
+function setStatus(t, live=false){
+  document.getElementById('statusText').textContent = t;
+  document.getElementById('statusDot').className = 'dot'+(live?' live':'');
+}
+function showError(m){ const e=document.getElementById('errorMsg'); e.textContent='⚠️ '+m; e.style.display='block'; }
+function hideError(){ document.getElementById('errorMsg').style.display='none'; }
+
+async function apiFetch(keys, s, e){
+  const url = `${API}/plugins/telemetry/DEVICE/${DEVICE_ID}/values/timeseries`
+            + `?keys=${keys}&startTs=${s}&endTs=${e}&limit=50000`;
+  const r = await fetch(url, { headers:{ "X-Authorization":"Bearer "+TOKEN }});
+  if(!r.ok) throw new Error(`API error ${r.status}: ${await r.text()}`);
+  return r.json();
 }
 
-/* ── MAIN ── */
+/* ════════════════════════════════════════
+   GENERATE
+════════════════════════════════════════ */
 async function generate(){
   hideError();
-  const dateVal = document.getElementById('dateInput').value;
-  if(!dateVal){ showError("Please select a date."); return; }
+  const dv = document.getElementById('dateInput').value;
+  if(!dv){ showError("Please select a date."); return; }
 
-  const startTs = new Date(dateVal + "T00:00:00").getTime();
-  const endTs   = new Date(dateVal + "T23:59:59").getTime();
+  const sTs = new Date(dv + "T00:00:00").getTime();
+  const eTs = new Date(dv + "T23:59:59").getTime();
 
   const btn = document.getElementById('genBtn');
   btn.disabled = true;
@@ -508,244 +308,269 @@ async function generate(){
   setStatus('Fetching…', true);
 
   try {
-    /* Fetch all three telemetries in parallel */
-    const [mainData, energyData, powerData] = await Promise.all([
-      fetchTelemetry(KEYS_MAIN,  startTs, endTs),
-      fetchTelemetry(KEY_ENERGY, startTs, endTs),
-      fetchTelemetry(KEY_POWER,  startTs, endTs),
+    const [mainRaw, energyRaw, powerRaw] = await Promise.all([
+      apiFetch(KEY_MAIN,   sTs, eTs),
+      apiFetch(KEY_ENERGY, sTs, eTs),
+      apiFetch(KEY_POWER,  sTs, eTs),
     ]);
-
-    processData(mainData, energyData, powerData, dateVal);
+    process(mainRaw, energyRaw, powerRaw);
     setStatus('Updated', true);
-
-  } catch(e){
-    showError("Failed to fetch data: " + e.message);
+  } catch(ex){
+    showError("Failed to fetch data: " + ex.message);
     setStatus('Error', false);
+    console.error(ex);
   } finally {
     btn.disabled = false;
     document.getElementById('loader').style.display = 'none';
   }
 }
 
-/* ── PROCESS ── */
-function processData(mainData, energyData, powerData, dateLabel){
+/* ════════════════════════════════════════
+   PROCESS
+════════════════════════════════════════ */
+function process(mainRaw, energyRaw, powerRaw){
 
-  /* ── 1. Per-minute energy → hourly sum ── */
-  let hourlyEnergy = {}; // {h: total_kWh}
-  (energyData[KEY_ENERGY] || []).forEach(pt => {
-    const v = num(pt.value);
-    if(v === null) return;
+  /* ── Step 1: Parse chiller_plant_1 ──────────────────────────────────────
+     Each telemetry point from ThingsBoard looks like:
+       { ts: 1779687559000, value: '{"18_R_Current":88.17,...}' }
+     The value is a JSON STRING — we must JSON.parse() it first.
+  ──────────────────────────────────────────────────────────────────────── */
+  let parsedRows = [];
+  (mainRaw[KEY_MAIN] || []).forEach(pt => {
+    let obj = {};
+    try {
+      obj = (typeof pt.value === 'object' && pt.value !== null)
+              ? pt.value
+              : JSON.parse(pt.value);
+    } catch(e) {
+      console.warn("Could not parse chiller_plant_1 value:", pt.value);
+      return;
+    }
+    obj._ts = pt.ts;
+    parsedRows.push(obj);
+  });
+  parsedRows.sort((a,b) => a._ts - b._ts);
+
+  console.log(`Parsed ${parsedRows.length} rows from ${KEY_MAIN}`);
+  if(parsedRows.length > 0) console.log("Sample row:", parsedRows[0]);
+
+  /* ── Step 2: Hourly buckets from main telemetry ────────────────────── */
+  let hMain = {};
+  parsedRows.forEach(r => {
+    const h = new Date(r._ts).getHours();
+    if(!hMain[h]) hMain[h] = {
+      pf:[], vRY:[], vYB:[], vBR:[], vLL:[],
+      vRN:[], vYN:[], vBN:[], vLN:[],
+      iR:[], iY:[], iB:[], iAvg:[], freq:[]
+    };
+    const m = hMain[h];
+    const push = (arr, key) => { const v = num(r[key]); if(v !== null) arr.push(v); };
+
+    push(m.pf,   '18_Avg_PF');
+    push(m.vRY,  '18_Voltage_RY');
+    push(m.vYB,  '18_Voltage_YB');
+    push(m.vBR,  '18_Voltage_BR');
+    push(m.vLL,  '18_Avg_Voltage_LL');
+    push(m.vRN,  '18_Voltage_RN');
+    push(m.vYN,  '18_Voltage_YN');
+    push(m.vBN,  '18_Voltage_BN');
+    push(m.vLN,  '18_Avg_Voltage_LN');
+    push(m.iR,   '18_R_Current');
+    push(m.iY,   '18_Y_Current');
+    push(m.iB,   '18_B_Current');
+    push(m.iAvg, '18_Avg_Current');
+    push(m.freq, '18_Freq');
+  });
+
+  /* ── Step 3: Per-minute energy → hourly sum ────────────────────────── */
+  let hEnergy = {};
+  (energyRaw[KEY_ENERGY] || []).forEach(pt => {
+    const v = num(pt.value); if(v === null) return;
     const h = new Date(pt.ts).getHours();
-    hourlyEnergy[h] = (hourlyEnergy[h] || 0) + v;
+    hEnergy[h] = (hEnergy[h] || 0) + v;
   });
 
-  /* ── 2. Per-minute active power → hourly avg/max ── */
-  let hourlyPowerArr = {}; // {h: [values]}
-  let allPowerVals   = [];
-  (powerData[KEY_POWER] || []).forEach(pt => {
-    const v = num(pt.value);
-    if(v === null) return;
+  /* ── Step 4: Per-minute power → hourly avg / max ───────────────────── */
+  let hPowerArr = {}, allPower = [];
+  (powerRaw[KEY_POWER] || []).forEach(pt => {
+    const v = num(pt.value); if(v === null) return;
     const h = new Date(pt.ts).getHours();
-    if(!hourlyPowerArr[h]) hourlyPowerArr[h] = [];
-    hourlyPowerArr[h].push(v);
-    allPowerVals.push(v);
+    if(!hPowerArr[h]) hPowerArr[h] = [];
+    hPowerArr[h].push(v);
+    allPower.push(v);
   });
 
-  /* ── 3. Main telemetry (chiller_plant_1) → latest-per-hour for phase/PF/volt/current ── */
-  /* Build time-sorted rows */
-  let tsMap = {};
-  Object.entries(mainData).forEach(([k, arr]) => {
-    arr.forEach(pt => {
-      if(!tsMap[pt.ts]) tsMap[pt.ts] = { ts: pt.ts };
-      const v = num(pt.value);
-      if(v !== null) tsMap[pt.ts][k] = v;
-    });
-  });
-  const rows = Object.values(tsMap).sort((a,b)=>a.ts-b.ts);
+  /* ── Step 5: Unified hour list ─────────────────────────────────────── */
+  const allH = Array.from(new Set([
+    ...Object.keys(hEnergy).map(Number),
+    ...Object.keys(hPowerArr).map(Number),
+    ...Object.keys(hMain).map(Number),
+  ])).sort((a,b) => a - b);
+  const labels = allH.map(h => h.toString().padStart(2,'0') + ":00");
 
-  /* Hourly buckets for main telemetry (averaged per hour) */
-  let hourlyMain = {}; // {h: {pf:[], vRY:[], vYB:[], vBR:[], vRN:[], vYN:[], vBN:[], iR:[], iY:[], iB:[], iAvg:[], freq:[]}}
-  rows.forEach(r => {
-    const h = new Date(r.ts).getHours();
-    if(!hourlyMain[h]) hourlyMain[h] = { pf:[], vLL:[], vLN:[], iR:[], iY:[], iB:[], iAvg:[], freq:[] };
-    const m = hourlyMain[h];
-    if(r['18_Avg_PF']         != null) m.pf.push(r['18_Avg_PF']);
-    if(r['18_Avg_Voltage_LL'] != null) m.vLL.push(r['18_Avg_Voltage_LL']);
-    if(r['18_Avg_Voltage_LN'] != null) m.vLN.push(r['18_Avg_Voltage_LN']);
-    if(r['18_R_Current']      != null) m.iR.push(r['18_R_Current']);
-    if(r['18_Y_Current']      != null) m.iY.push(r['18_Y_Current']);
-    if(r['18_B_Current']      != null) m.iB.push(r['18_B_Current']);
-    if(r['18_Avg_Current']    != null) m.iAvg.push(r['18_Avg_Current']);
-    if(r['18_Freq']           != null) m.freq.push(r['18_Freq']);
-  });
+  /* ── KPIs ──────────────────────────────────────────────────────────── */
+  const totalE = Object.values(hEnergy).reduce((a,b)=>a+b, 0);
+  const allPF  = Object.values(hMain).flatMap(m => m.pf);
 
-  /* All unique hours across all data sources */
-  const allHours = Array.from(new Set([
-    ...Object.keys(hourlyEnergy).map(Number),
-    ...Object.keys(hourlyPowerArr).map(Number),
-    ...Object.keys(hourlyMain).map(Number),
-  ])).sort((a,b)=>a-b);
+  document.getElementById('kTotalEnergy').textContent = totalE.toFixed(2);
+  document.getElementById('kAvgPower').textContent    = fmt(avg(allPower));
+  document.getElementById('kMaxPower').textContent    = fmt(sMax(allPower));
+  document.getElementById('kAvgPF').textContent       = fmt(avg(allPF), 3);
+  document.getElementById('kMinPF').textContent       = fmt(sMin(allPF.length ? allPF : [0]), 3);
 
-  const labels = allHours.map(h => h.toString().padStart(2,'0')+":00");
+  /* ── Electrical Summary (last snapshot) ────────────────────────────── */
+  const last = parsedRows[parsedRows.length - 1] || {};
+  const g = (key, dp=2) => { const v=num(last[key]); return v!==null ? v.toFixed(dp) : '—'; };
 
-  /* ── KPI ── */
-  const totalEnergy = Object.values(hourlyEnergy).reduce((a,b)=>a+b,0);
-  const allPF       = Object.values(hourlyMain).flatMap(m=>m.pf);
+  document.getElementById('sVLL').textContent  = g('18_Avg_Voltage_LL', 1);
+  document.getElementById('sVLN').textContent  = g('18_Avg_Voltage_LN', 1);
+  document.getElementById('sIAvg').textContent = g('18_Avg_Current', 2);
+  document.getElementById('sFreq').textContent = g('18_Freq', 3);
 
-  document.getElementById('kTotalEnergy').textContent = totalEnergy.toFixed(2);
-  document.getElementById('kAvgPower').textContent    = avg(allPowerVals).toFixed(2);
-  document.getElementById('kMaxPower').textContent    = safeMax(allPowerVals).toFixed(2);
-  document.getElementById('kAvgPF').textContent       = avg(allPF).toFixed(3);
-  document.getElementById('kMinPF').textContent       = (safeMin(allPF)||0).toFixed(3);
-
-  /* ── CHART 1 – Hourly Energy ── */
+  /* ── CHART 1 – Hourly Energy ────────────────────────────────────────── */
   Plotly.newPlot('energyChart', [{
     x: labels,
-    y: allHours.map(h => (hourlyEnergy[h]||0).toFixed(3)),
+    y: allH.map(h => (hEnergy[h] || 0).toFixed(3)),
     type: 'bar',
     name: 'Energy (kWh)',
-    marker: { color: '#00c9a7', opacity: 0.85 },
-  }], {
-    ...LAYOUT_BASE,
-    yaxis: { ...LAYOUT_BASE.yaxis, title: 'kWh' },
-  }, CONF);
+    marker: { color: '#0e9f7e', opacity: 0.85 },
+  }], { ...LB, yaxis:{...LB.yaxis, title:'kWh'} }, CFG);
 
-  /* ── CHART 2 – Power & PF Trend ── */
+  /* ── CHART 2 – Power & PF Trend ─────────────────────────────────────── */
   Plotly.newPlot('trendChart', [
     {
       x: labels,
-      y: allHours.map(h => avg(hourlyPowerArr[h]||[]).toFixed(2)),
+      y: allH.map(h => avg(hPowerArr[h] || []).toFixed(2)),
       name: 'Avg Active Power (kW)',
       type: 'scatter', mode: 'lines+markers',
-      line: { color:'#3b82f6', width:2 },
-      marker: { size:5 },
+      line: { color:'#2563eb', width:2 }, marker: { size:5 },
     },
     {
       x: labels,
-      y: allHours.map(h => avg((hourlyMain[h]||{pf:[]}).pf).toFixed(3)),
+      y: allH.map(h => avg((hMain[h]||{pf:[]}).pf).toFixed(3)),
       name: 'Power Factor',
       type: 'scatter', mode: 'lines+markers',
       yaxis: 'y2',
-      line: { color:'#f59e0b', width:2, dash:'dot' },
-      marker: { size:5 },
+      line: { color:'#d97706', width:2, dash:'dot' }, marker: { size:5 },
     }
   ], {
-    ...LAYOUT_BASE,
-    yaxis:  { ...LAYOUT_BASE.yaxis, title:'kW' },
+    ...LB,
+    yaxis:  { ...LB.yaxis, title:'kW' },
     yaxis2: { overlaying:'y', side:'right', title:'PF', range:[0.7,1.05],
-               gridcolor:'transparent', tickfont:{size:10}, color:'#8b949e' },
-  }, CONF);
+               gridcolor:'transparent', tickfont:{size:10}, color:'#64748b' },
+  }, CFG);
 
-  /* ── CHART 3 – Line Voltage ── */
-  /* Per-hour per-phase voltages from mainData (individual keys) */
-  let hourlyVoltRY={}, hourlyVoltYB={}, hourlyVoltBR={};
-  rows.forEach(r=>{
-    const h=new Date(r.ts).getHours();
-    if(!hourlyVoltRY[h]) hourlyVoltRY[h]=[];
-    if(!hourlyVoltYB[h]) hourlyVoltYB[h]=[];
-    if(!hourlyVoltBR[h]) hourlyVoltBR[h]=[];
-    if(r['18_Voltage_RY']!=null) hourlyVoltRY[h].push(r['18_Voltage_RY']);
-    if(r['18_Voltage_YB']!=null) hourlyVoltYB[h].push(r['18_Voltage_YB']);
-    if(r['18_Voltage_BR']!=null) hourlyVoltBR[h].push(r['18_Voltage_BR']);
-  });
+  /* ── CHART 3 – Line-to-Line Voltage ─────────────────────────────────── */
+  Plotly.newPlot('voltLLChart', [
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{vRY:[]}).vRY).toFixed(1)), name:'V_RY', mode:'lines+markers', line:{color:COL_R,width:2}, marker:{size:4} },
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{vYB:[]}).vYB).toFixed(1)), name:'V_YB', mode:'lines+markers', line:{color:COL_Y,width:2}, marker:{size:4} },
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{vBR:[]}).vBR).toFixed(1)), name:'V_BR', mode:'lines+markers', line:{color:COL_B,width:2}, marker:{size:4} },
+  ], { ...LB, yaxis:{...LB.yaxis,title:'Volts'} }, CFG);
 
-  Plotly.newPlot('voltLL', [
-    { x:labels, y:allHours.map(h=>avg(hourlyVoltRY[h]||[]).toFixed(1)), name:'V_RY', mode:'lines+markers', line:{color:var_r,width:2}, marker:{size:4} },
-    { x:labels, y:allHours.map(h=>avg(hourlyVoltYB[h]||[]).toFixed(1)), name:'V_YB', mode:'lines+markers', line:{color:var_y,width:2}, marker:{size:4} },
-    { x:labels, y:allHours.map(h=>avg(hourlyVoltBR[h]||[]).toFixed(1)), name:'V_BR', mode:'lines+markers', line:{color:var_b,width:2}, marker:{size:4} },
-  ], { ...LAYOUT_BASE, yaxis:{...LAYOUT_BASE.yaxis,title:'Volts'} }, CONF);
-
-  /* ── CHART 4 – Phase Current ── */
-  let hourlyIR={}, hourlyIY={}, hourlyIB={};
-  rows.forEach(r=>{
-    const h=new Date(r.ts).getHours();
-    if(!hourlyIR[h]) hourlyIR[h]=[];
-    if(!hourlyIY[h]) hourlyIY[h]=[];
-    if(!hourlyIB[h]) hourlyIB[h]=[];
-    if(r['18_R_Current']!=null) hourlyIR[h].push(r['18_R_Current']);
-    if(r['18_Y_Current']!=null) hourlyIY[h].push(r['18_Y_Current']);
-    if(r['18_B_Current']!=null) hourlyIB[h].push(r['18_B_Current']);
-  });
-
+  /* ── CHART 4 – Phase Current ─────────────────────────────────────────── */
   Plotly.newPlot('currentChart', [
-    { x:labels, y:allHours.map(h=>avg(hourlyIR[h]||[]).toFixed(2)), name:'I_R', mode:'lines+markers', line:{color:var_r,width:2}, marker:{size:4} },
-    { x:labels, y:allHours.map(h=>avg(hourlyIY[h]||[]).toFixed(2)), name:'I_Y', mode:'lines+markers', line:{color:var_y,width:2}, marker:{size:4} },
-    { x:labels, y:allHours.map(h=>avg(hourlyIB[h]||[]).toFixed(2)), name:'I_B', mode:'lines+markers', line:{color:var_b,width:2}, marker:{size:4} },
-  ], { ...LAYOUT_BASE, yaxis:{...LAYOUT_BASE.yaxis,title:'Amperes'} }, CONF);
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{iR:[]}).iR).toFixed(2)), name:'I_R (A)', mode:'lines+markers', line:{color:COL_R,width:2}, marker:{size:4} },
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{iY:[]}).iY).toFixed(2)), name:'I_Y (A)', mode:'lines+markers', line:{color:COL_Y,width:2}, marker:{size:4} },
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{iB:[]}).iB).toFixed(2)), name:'I_B (A)', mode:'lines+markers', line:{color:COL_B,width:2}, marker:{size:4} },
+  ], { ...LB, yaxis:{...LB.yaxis,title:'Amperes'} }, CFG);
 
-  /* ── PHASE CARDS – last snapshot ── */
-  const last = rows[rows.length-1] || {};
+  /* ── CHART 5 – Phase-to-Neutral Voltage ─────────────────────────────── */
+  Plotly.newPlot('voltLNChart', [
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{vRN:[]}).vRN).toFixed(1)), name:'V_RN', mode:'lines+markers', line:{color:COL_R,width:2}, marker:{size:4} },
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{vYN:[]}).vYN).toFixed(1)), name:'V_YN', mode:'lines+markers', line:{color:COL_Y,width:2}, marker:{size:4} },
+    { x:labels, y:allH.map(h=>avg((hMain[h]||{vBN:[]}).vBN).toFixed(1)), name:'V_BN', mode:'lines+markers', line:{color:COL_B,width:2}, marker:{size:4} },
+  ], { ...LB, yaxis:{...LB.yaxis,title:'Volts'} }, CFG);
 
-  function phaseCard(phase, colorVar, colorHex, vLLkey, vLNkey, iKey, labelLL, labelLN){
-    const vll   = (last[vLLkey]||0).toFixed(1);
-    const vln   = (last[vLNkey]||0).toFixed(1);
-    const curr  = (last[iKey]  ||0).toFixed(2);
-    const maxV  = 420, maxI = 200;
-    const pctV  = Math.min(100, (last[vLNkey]||0)/maxV*100).toFixed(0);
-    const pctI  = Math.min(100, (last[iKey]  ||0)/maxI*100).toFixed(0);
+  /* ── CHART 6 – Frequency ─────────────────────────────────────────────── */
+  Plotly.newPlot('freqChart', [{
+    x: labels,
+    y: allH.map(h => avg((hMain[h]||{freq:[]}).freq).toFixed(3)),
+    name: 'Frequency (Hz)',
+    type: 'scatter', mode: 'lines+markers',
+    line: { color:'#7c3aed', width:2 }, marker:{ size:5 },
+    fill: 'tozeroy', fillcolor: 'rgba(124,58,237,0.06)',
+  }], {
+    ...LB,
+    yaxis: { ...LB.yaxis, title:'Hz', range:[49, 51] },
+  }, CFG);
+
+  /* ── PHASE CARDS ─────────────────────────────────────────────────────── */
+  function phaseCard(phase, color, vLLkey, vLNkey, iKey, llLabel, lnLabel){
+    const vll  = g(vLLkey, 1);
+    const vln  = g(vLNkey, 1);
+    const curr = g(iKey,   2);
+    const maxV = 440, maxI = 250;
+    const pctV = Math.min(100, ((num(last[vLNkey])||0) / maxV) * 100).toFixed(0);
+    const pctI = Math.min(100, ((num(last[iKey])  ||0) / maxI) * 100).toFixed(0);
 
     return `
-    <div class="phase-header">
-      <div class="phase-dot" style="background:${colorHex}"></div>
-      <div class="phase-name" style="color:${colorHex}">Phase ${phase}</div>
-      <div class="phase-badge" style="background:${colorHex}22;color:${colorHex}">LIVE</div>
-    </div>
-    <div class="metric-row">
-      <span class="metric-label">Line Voltage (${labelLL})</span>
-      <span class="metric-val" style="color:${colorHex}">${vll} <small style="font-weight:400;font-size:10px">V</small></span>
-    </div>
-    <div class="metric-row">
-      <span class="metric-label">Phase Voltage (${labelLN})</span>
-      <span class="metric-val">${vln} <small style="font-weight:400;font-size:10px">V</small></span>
-    </div>
-    <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pctV}%;background:${colorHex}"></div></div>
-    <div class="metric-row" style="margin-top:8px">
-      <span class="metric-label">Phase Current</span>
-      <span class="metric-val" style="color:${colorHex}">${curr} <small style="font-weight:400;font-size:10px">A</small></span>
-    </div>
-    <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pctI}%;background:${colorHex}"></div></div>
+      <div class="phase-header">
+        <div class="phase-dot" style="background:${color}"></div>
+        <div class="phase-name" style="color:${color}">Phase ${phase}</div>
+        <div class="phase-badge" style="background:${color}18;color:${color}">LIVE</div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Line Voltage (${llLabel})</span>
+        <span class="metric-val" style="color:${color}">${vll} <small style="font-weight:400;font-size:10px">V</small></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Phase Voltage (${lnLabel})</span>
+        <span class="metric-val">${vln} <small style="font-weight:400;font-size:10px">V</small></span>
+      </div>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pctV}%;background:${color}"></div></div>
+      <div class="metric-row">
+        <span class="metric-label">Phase Current</span>
+        <span class="metric-val" style="color:${color}">${curr} <small style="font-weight:400;font-size:10px">A</small></span>
+      </div>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pctI}%;background:${color}"></div></div>
+      <div class="metric-row" style="margin-top:4px">
+        <span class="metric-label">Power Factor</span>
+        <span class="metric-val">${g('18_Avg_PF', 3)}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Frequency</span>
+        <span class="metric-val">${g('18_Freq', 3)} <small style="font-weight:400;font-size:10px">Hz</small></span>
+      </div>
     `;
   }
 
-  document.getElementById('phaseR').innerHTML = phaseCard('R','--r','#f87171','18_Voltage_RY','18_Voltage_RN','18_R_Current','RY','RN');
-  document.getElementById('phaseY').innerHTML = phaseCard('Y','--y','#fbbf24','18_Voltage_YB','18_Voltage_YN','18_Y_Current','YB','YN');
-  document.getElementById('phaseB').innerHTML = phaseCard('B','--b','#60a5fa','18_Voltage_BR','18_Voltage_BN','18_B_Current','BR','BN');
+  document.getElementById('phaseR').innerHTML = phaseCard('R', COL_R, '18_Voltage_RY', '18_Voltage_RN', '18_R_Current', 'RY', 'RN');
+  document.getElementById('phaseY').innerHTML = phaseCard('Y', COL_Y, '18_Voltage_YB', '18_Voltage_YN', '18_Y_Current', 'YB', 'YN');
+  document.getElementById('phaseB').innerHTML = phaseCard('B', COL_B, '18_Voltage_BR', '18_Voltage_BN', '18_B_Current', 'BR', 'BN');
 
-  /* ── TABLE ── */
+  /* ── HOURLY SUMMARY TABLE ────────────────────────────────────────────── */
   let tbody = '';
-  allHours.forEach(h => {
-    const en    = (hourlyEnergy[h]||0).toFixed(3);
-    const pw    = avg(hourlyPowerArr[h]||[]).toFixed(2);
-    const maxPw = safeMax(hourlyPowerArr[h]||[]).toFixed(2);
-    const pf    = avg((hourlyMain[h]||{pf:[]}).pf).toFixed(3);
-    const vll   = avg((hourlyMain[h]||{vLL:[]}).vLL).toFixed(1);
-    const iavg  = avg((hourlyMain[h]||{iAvg:[]}).iAvg).toFixed(2);
-    const freq  = avg((hourlyMain[h]||{freq:[]}).freq).toFixed(3);
-    const pfNum = parseFloat(pf);
-    const pfCls = pfNum < 0.85 ? 'pf-bad' : pfNum < 0.9 ? 'pf-warn' : 'pf-ok';
+  allH.forEach(h => {
+    const m    = hMain[h] || { pf:[], vLL:[], vLN:[], iAvg:[], freq:[] };
+    const en   = (hEnergy[h] || 0).toFixed(3);
+    const pw   = avg(hPowerArr[h] || []).toFixed(2);
+    const maxP = sMax(hPowerArr[h] || []).toFixed(2);
+    const pf   = avg(m.pf).toFixed(3);
+    const vll  = avg(m.vLL).toFixed(1);
+    const vln  = avg(m.vLN).toFixed(1);
+    const iavg = avg(m.iAvg).toFixed(2);
+    const freq = avg(m.freq).toFixed(3);
+    const pfN  = parseFloat(pf);
+    const pfC  = pfN < 0.85 ? 'pf-bad' : pfN < 0.90 ? 'pf-warn' : 'pf-ok';
 
     tbody += `<tr>
       <td class="td-hour">${h.toString().padStart(2,'0')}:00</td>
       <td>${en}</td>
       <td>${pw}</td>
-      <td>${maxPw}</td>
-      <td class="${pfCls}">${pf}</td>
+      <td>${maxP}</td>
+      <td class="${pfC}">${pf}</td>
       <td>${vll}</td>
+      <td>${vln}</td>
       <td>${iavg}</td>
       <td>${freq}</td>
     </tr>`;
   });
 
   document.getElementById('tableBody').innerHTML = tbody ||
-    '<tr><td colspan="8" style="color:var(--muted);padding:30px">No data returned for this date.</td></tr>';
+    '<tr><td colspan="9" style="color:var(--muted);padding:30px">No data returned for this date.</td></tr>';
 }
 
-/* ── CSS variable colours for JS (Plotly) ── */
-const var_r = '#f87171';
-const var_y = '#fbbf24';
-const var_b = '#60a5fa';
-
-/* ── Init ── */
+/* ── Init: default to today ── */
 document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
 </script>
 </body>
