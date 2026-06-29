@@ -796,39 +796,7 @@ async function downloadPDF(){
     let position = margin;
       /*-----------------------------------------
       First Page
-    ------------------------------------------*/
-
-    pdf.addImage(
-
-        imgData,
-
-        "JPEG",
-
-        margin,
-
-        position,
-
-        imgWidth,
-
-        imgHeight,
-
-        undefined,
-
-        "FAST"
-
-    );
-
-    remainingHeight -= usableHeight;
-
-    /*-----------------------------------------
-      Additional Pages
-    ------------------------------------------*/
-
-    while (remainingHeight > 0) {
-
-        position = remainingHeight - imgHeight + margin;
-
-        pdf.addPage();
+    ------------------------------------------*
 
         pdf.addImage(
 
