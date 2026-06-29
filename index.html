@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chiller Plant 1 – Energy Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -155,7 +156,14 @@ tbody tr:hover{background:#f8fafc;}
   <div class="filter-label"><span class="material-icons">calendar_today</span> Report Date</div>
   <input type="date" id="dateInput">
   <button class="btn" id="genBtn" onclick="generate()">
-    <span class="material-icons">insights</span> Generate Report
+      <span class="material-icons">insights</span>
+      Generate Report
+  </button>
+  
+  <button class="btn" id="pdfBtn" onclick="downloadPDF()"
+          style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+      <span class="material-icons">picture_as_pdf</span>
+      Download PDF
   </button>
   <div id="loader"><div class="spin"></div> Fetching data…</div>
   <div class="status-pill">
@@ -164,7 +172,7 @@ tbody tr:hover{background:#f8fafc;}
   </div>
 </div>
 
-<div class="main">
+<div class="main" id="reportContent">
 
   <!-- ERROR -->
   <div id="errorMsg">
@@ -649,7 +657,62 @@ function process(mainRaw,energyRaw,powerRaw){
   document.getElementById('tableBody').innerHTML=tbody||
     '<tr><td colspan="9" style="color:var(--muted);padding:30px;font-family:\'DM Sans\',sans-serif;">No data returned for this date.</td></tr>';
 }
+/* =====================================
+   DOWNLOAD PDF
+===================================== */
 
+async function downloadPDF(){
+
+    const btn=document.getElementById("pdfBtn");
+
+    btn.disabled=true;
+    btn.innerHTML='<span class="material-icons">hourglass_top</span>Generating...';
+
+    const report=document.getElementById("reportContent");
+
+    const opt={
+
+        margin:0.25,
+
+        filename:
+            "ChillerPlant1_DailyReport_"
+            +document.getElementById("dateInput").value+
+            ".pdf",
+
+        image:{
+            type:"jpeg",
+            quality:1
+        },
+
+        html2canvas:{
+            scale:2,
+            useCORS:true,
+            scrollY:0
+        },
+
+        jsPDF:{
+            unit:"in",
+            format:"a4",
+            orientation:"portrait"
+        },
+
+        pagebreak:{
+            mode:["css","legacy"]
+        }
+
+    };
+
+    await html2pdf()
+            .set(opt)
+            .from(report)
+            .save();
+
+    btn.disabled=false;
+
+    btn.innerHTML=
+    '<span class="material-icons">picture_as_pdf</span>Download PDF';
+
+}
 /* Init */
 document.getElementById('dateInput').value=new Date().toISOString().split('T')[0];
 </script>
