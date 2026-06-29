@@ -851,9 +851,7 @@ async function downloadPDF(){
         );
 
         remainingHeight -= usableHeight;
-
     }
-
     /*-----------------------------------------
       Footer (Page Numbers)
     ------------------------------------------*/
@@ -881,6 +879,31 @@ async function downloadPDF(){
         );
 
     }
+  try{
+
+    pdf.save(
+        "ChillerPlant1_DailyReport_" +
+        date +
+        ".pdf"
+    );
+
+}
+catch(err){
+
+    console.error(err);
+    alert("Failed to generate PDF.");
+
+}
+finally{
+
+    btn.disabled = false;
+
+    btn.innerHTML =
+    '<span class="material-icons">picture_as_pdf</span> Download PDF';
+
+}
+
+}    
 /* Init */
 document.getElementById('dateInput').value=new Date().toISOString().split('T')[0];
 </script>
