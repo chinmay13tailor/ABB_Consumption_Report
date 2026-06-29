@@ -133,6 +133,21 @@ tbody tr:hover{background:#f8fafc;}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:900px){.chart-grid{grid-template-columns:1fr;}.phase-grid{grid-template-columns:1fr;}.summary-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.main{padding:14px;}.filter-bar{padding:12px 14px;}.header{padding:14px;}}
+
+  #reportContent{
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
+}
+
+.chart-card,
+.table-card,
+.kpi-card,
+.phase-card,
+.sum-card{
+    break-inside:avoid;
+    page-break-inside:avoid;
+}
 </style>
 </head>
 <body>
