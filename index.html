@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chiller Plant 1 – Energy Report</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -675,60 +677,297 @@ function process(mainRaw,energyRaw,powerRaw){
 /* =====================================
    DOWNLOAD PDF
 ===================================== */
+/*=========================================================
+  DOWNLOAD PDF - PART 1
+=========================================================*/
 
 async function downloadPDF(){
 
-    const btn=document.getElementById("pdfBtn");
+    const { jsPDF } = window.jspdf;
 
-    btn.disabled=true;
-    btn.innerHTML='<span class="material-icons">hourglass_top</span>Generating...';
+    const report = document.getElementById("reportContent");
 
-    const report=document.getElementById("reportContent");
+    const btn = document.getElementById("pdfBtn");
 
-    const opt={
+    const date =
+        document.getElementById("dateInput").value;
 
-        margin:[0.35,0.35,0.35,0.35],
+    btn.disabled = true;
 
-        filename:
-            "ChillerPlant1_DailyReport_"
-            +document.getElementById("dateInput").value+
-            ".pdf",
+    btn.innerHTML =
+        '<span class="material-icons">hourglass_top</span> Generating...';
 
-        image:{
-            type:"jpeg",
-            quality:1
-        },
+    /*-----------------------------------------
+      Wait for Plotly charts to finish rendering
+    ------------------------------------------*/
 
-        html2canvas:{
-            scale:2,
-            useCORS:true,
-            scrollY:0,
-            windowWidth:1400
-        },
+    await new Promise(r => setTimeout(r,1000));
 
-        jsPDF:{
-            unit:"in",
-            format:"a4",
-            orientation:"landscape"
-        },
+    /*-----------------------------------------
+      Store Original Style
+    ------------------------------------------*/
 
-        pagebreak:{
-            mode:["css","legacy"]
-        }
+    const oldWidth = report.style.width;
+    const oldOverflow = report.style.overflow;
 
-    };
+    /*-----------------------------------------
+      Force Fixed Width
+    ------------------------------------------*/
 
-    await html2pdf()
-            .set(opt)
-            .from(report)
-            .save();
+    report.style.width = "1200px";
+    report.style.overflow = "visible";
 
-    btn.disabled=false;
+    /*-----------------------------------------
+      Capture Dashboard
+    ------------------------------------------*/
 
-    btn.innerHTML=
-    '<span class="material-icons">picture_as_pdf</span>Download PDF';
+    const canvas = await html2canvas(report,{
 
-}
+        scale:2,
+
+        useCORS:true,
+
+        allowTaint:true,
+
+        backgroundColor:"#f0f4f8",
+
+        scrollX:0,
+
+        scrollY:0,
+
+        windowWidth:report.scrollWidth,
+
+        windowHeight:report.scrollHeight
+
+    });
+
+    /*-----------------------------------------
+      Restore Original Style
+    ------------------------------------------*/
+
+    report.style.width = oldWidth;
+    report.style.overflow = oldOverflow;
+
+    /*-----------------------------------------
+      Image
+    ------------------------------------------*/
+
+    const imgData =
+        canvas.toDataURL("image/jpeg",1.0);
+
+    /*-----------------------------------------
+      PDF
+    ------------------------------------------*/
+
+    const pdf = new jsPDF({
+
+        orientation:"landscape",
+
+        unit:"mm",
+
+        format:"a4",
+
+        compress:true
+
+    });
+
+    const pdfWidth =
+        pdf.internal.pageSize.getWidth();
+
+    const pdfHeight =
+        pdf.internal.pageSize.getHeight();
+
+    const margin = 8;
+
+    const usableWidth =
+        pdfWidth - margin*2;
+
+    const usableHeight =
+        pdfHeight - margin*2;
+
+    const imgWidth =
+        usableWidth;
+
+    const imgHeight =
+        canvas.height * imgWidth / canvas.width;
+
+    let remainingHeight = imgHeight;
+
+    let position = margin;
+      /*-----------------------------------------
+      First Page
+    ------------------------------------------*/
+
+    pdf.addImage(
+
+        imgData,
+
+        "JPEG",
+
+        margin,
+
+        position,
+
+        imgWidth,
+
+        imgHeight,
+
+        undefined,
+
+        "FAST"
+
+    );
+
+    remainingHeight -= usableHeight;
+
+    /*-----------------------------------------
+      Additional Pages
+    ------------------------------------------*/
+
+    while (remainingHeight > 0) {
+
+        position = remainingHeight - imgHeight + margin;
+
+        pdf.addPage();
+
+        pdf.addImage(
+
+            imgData,
+
+            "JPEG",
+
+            margin,
+
+            position,
+
+            imgWidth,
+
+            imgHeight,
+
+            undefined,
+
+            "FAST"
+
+        );
+
+        remainingHeight -= usableHeight;
+
+    }
+
+    /*-----------------------------------------
+      Footer (Page Numbers)
+    ------------------------------------------*/
+
+    const totalPages = pdf.internal.getNumberOfPages();
+
+    for(let i=1;i<=totalPages;i++){
+
+        pdf.setPage(i);
+
+        pdf.setFont("helvetica","normal");
+
+        pdf.setFontSize(9);
+
+        pdf.setTextColor(120);
+
+        pdf.text(
+
+            `Page ${i} of ${totalPages}`,
+
+            pdfWidth-30,
+
+            pdfHeight-4
+
+        );
+
+    }
+      /*-----------------------------------------
+      First Page
+    ------------------------------------------*/
+
+    pdf.addImage(
+
+        imgData,
+
+        "JPEG",
+
+        margin,
+
+        position,
+
+        imgWidth,
+
+        imgHeight,
+
+        undefined,
+
+        "FAST"
+
+    );
+
+    remainingHeight -= usableHeight;
+
+    /*-----------------------------------------
+      Additional Pages
+    ------------------------------------------*/
+
+    while (remainingHeight > 0) {
+
+        position = remainingHeight - imgHeight + margin;
+
+        pdf.addPage();
+
+        pdf.addImage(
+
+            imgData,
+
+            "JPEG",
+
+            margin,
+
+            position,
+
+            imgWidth,
+
+            imgHeight,
+
+            undefined,
+
+            "FAST"
+
+        );
+
+        remainingHeight -= usableHeight;
+
+    }
+
+    /*-----------------------------------------
+      Footer (Page Numbers)
+    ------------------------------------------*/
+
+    const totalPages = pdf.internal.getNumberOfPages();
+
+    for(let i=1;i<=totalPages;i++){
+
+        pdf.setPage(i);
+
+        pdf.setFont("helvetica","normal");
+
+        pdf.setFontSize(9);
+
+        pdf.setTextColor(120);
+
+        pdf.text(
+
+            `Page ${i} of ${totalPages}`,
+
+            pdfWidth-30,
+
+            pdfHeight-4
+
+        );
+
+    }
 /* Init */
 document.getElementById('dateInput').value=new Date().toISOString().split('T')[0];
 </script>
