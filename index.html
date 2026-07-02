@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chiller Plant 1 – Energy Report</title>
+<title>Chiller Plant – Energy Report</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -45,8 +45,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .filter-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
 .filter-label .material-icons{font-size:16px;color:var(--accent);}
-.filter-bar input[type="date"]{background:#f8fafc;border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
-.filter-bar input[type="date"]:focus{border-color:var(--accent);}
+.filter-bar input[type="date"],
+.filter-bar select{background:#f8fafc;border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;cursor:pointer;}
+.filter-bar input[type="date"]:focus,
+.filter-bar select:focus{border-color:var(--accent);}
 .btn{padding:9px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0b8a6e);color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 2px 8px rgba(14,159,126,.3);display:flex;align-items:center;gap:7px;}
 .btn .material-icons{font-size:17px;}
 .btn:hover{opacity:.9;transform:translateY(-1px);}
@@ -159,17 +161,24 @@ tbody tr:hover{background:#f8fafc;}
   <div class="header-left">
     <div class="logo"><span class="material-icons">ac_unit</span></div>
     <div>
-      <h1>Chiller Plant 1 – Energy Report</h1>
+      <h1 id="reportTitle">Chiller Plant 1 – Energy Report</h1>
       <p>Electrical &amp; Power Quality Analysis Dashboard</p>
     </div>
   </div>
   <div class="device-badge">
     <span class="material-icons">developer_board</span>
+    <span id="badgeMeterText">Chiller 1</span>
   </div>
 </div>
 
 <!-- FILTER -->
 <div class="filter-bar">
+  <div class="filter-label"><span class="material-icons">device_hub</span> Energy Meter</div>
+  <select id="meterSelect" onchange="onMeterChange()">
+    <option value="1" selected>Chiller 1</option>
+    <option value="2">Chiller 2</option>
+  </select>
+
   <div class="filter-label"><span class="material-icons">calendar_today</span> Report Date</div>
   <input type="date" id="dateInput">
   <button class="btn" id="genBtn" onclick="generate()">
@@ -378,30 +387,65 @@ tbody tr:hover{background:#f8fafc;}
 /* ════════════════════════════
    CONFIG
 ════════════════════════════ */
-const DEVICE_ID  = "1250b550-5bdb-11f0-9b14-15d3b3a473c1";
 const API        = "https://plantwiz.pimateck.in/api";
 const TOKEN      = new URLSearchParams(location.search).get("token");
 
-const KEY_MAIN   = "chiller_plant_1";
-const KEY_ENERGY = "Chiller_1_per_min_consumption";
-const KEY_POWER  = "chiller_1_Active_Power";
+/*
+  METER_CONFIG — one entry per energy meter.
+
+  keyMain    : telemetry key that returns the JSON blob with all electrical readings
+  keyEnergy  : telemetry key with per-minute energy consumption (kWh)
+  keyPower   : telemetry key with per-minute active power (kW), OR null if this
+               meter has no separate power telemetry key (power is then read
+               straight out of the main JSON blob using powerField below)
+  powerField : field name (without prefix) inside the main JSON blob to use for
+               active power when keyPower is null, e.g. "Act_Power_Total"
+  fieldPrefix: prefix used on every field inside the main JSON blob
+               (Chiller 1 => "18_", Chiller 2 => "20_")
+
+  NOTE: the numeric prefix is NOT simply "meter number" - it's whatever prefix
+  ThingsBoard uses for that specific meter's fields, so it's configured
+  explicitly per meter rather than derived from the meter number.
+*/
+const METER_CONFIG = {
+  "1": {
+    label      : "Chiller 1",
+    deviceId   : "1250b550-5bdb-11f0-9b14-15d3b3a473c1",
+    keyMain    : "chiller_plant_1",
+    keyEnergy  : "Chiller_1_per_min_consumption",
+    keyPower   : "chiller_1_Active_Power",
+    powerField : null,
+    fieldPrefix: "18_"
+  },
+  "2": {
+    label      : "Chiller 2",
+    deviceId   : "1250b550-5bdb-11f0-9b14-15d3b3a473c1",
+    keyMain    : "chiller_plant_2",
+    keyEnergy  : "Chiller_2_per_min_consumption",
+    keyPower   : null,
+    powerField : "Act_Power_Total",
+    fieldPrefix: "20_"
+  }
+};
 
 /*
-  Field mapping inside parsed chiller_plant_1 JSON:
-  18_R_Current        → R phase current (A)
-  18_Y_Current        → Y phase current (A)
-  18_B_Current        → B phase current (A)
-  18_Avg_Current      → Average current (A)
-  18_Voltage_RY       → Line voltage R-Y (V)
-  18_Voltage_YB       → Line voltage Y-B (V)
-  18_Voltage_BR       → Line voltage B-R (V)
-  18_Avg_Voltage_LL   → Avg line-to-line voltage (V)
-  18_Voltage_RN       → Phase voltage R-N (V)
-  18_Voltage_YN       → Phase voltage Y-N (V)
-  18_Voltage_BN       → Phase voltage B-N (V)
-  18_Avg_Voltage_LN   → Avg phase-to-neutral voltage (V)
-  18_Freq             → Frequency (Hz)
-  18_Avg_PF           → Power Factor
+  Field mapping inside parsed main-blob JSON (after prefix is applied):
+  {PFX}R_Current        → R phase current (A)
+  {PFX}Y_Current        → Y phase current (A)
+  {PFX}B_Current        → B phase current (A)
+  {PFX}Avg_Current      → Average current (A)
+  {PFX}Voltage_RY       → Line voltage R-Y (V)
+  {PFX}Voltage_YB       → Line voltage Y-B (V)
+  {PFX}Voltage_BR       → Line voltage B-R (V)
+  {PFX}Avg_Voltage_LL   → Avg line-to-line voltage (V)
+  {PFX}Voltage_RN       → Phase voltage R-N (V)
+  {PFX}Voltage_YN       → Phase voltage Y-N (V)
+  {PFX}Voltage_BN       → Phase voltage B-N (V)
+  {PFX}Avg_Voltage_LN   → Avg phase-to-neutral voltage (V)
+  {PFX}Freq             → Frequency (Hz)
+  {PFX}Avg_PF           → Power Factor
+  {PFX}Act_Power_Total  → Active power (kW) [Chiller 2 only - used when no
+                           separate per-minute power key exists]
 */
 
 /* ════════════════════════════
@@ -437,8 +481,15 @@ function showError(m){
 }
 function hideError(){ document.getElementById('errorMsg').style.display='none'; }
 
-async function apiFetch(keys,s,e){
-  const url=`${API}/plugins/telemetry/DEVICE/${DEVICE_ID}/values/timeseries`
+function onMeterChange(){
+  const meterNum=document.getElementById('meterSelect').value;
+  const cfg=METER_CONFIG[meterNum];
+  document.getElementById('reportTitle').textContent = cfg.label + ' – Energy Report';
+  document.getElementById('badgeMeterText').textContent = cfg.label;
+}
+
+async function apiFetch(deviceId,keys,s,e){
+  const url=`${API}/plugins/telemetry/DEVICE/${deviceId}/values/timeseries`
            +`?keys=${keys}&startTs=${s}&endTs=${e}&limit=50000`;
   const r=await fetch(url,{headers:{"X-Authorization":"Bearer "+TOKEN}});
   if(!r.ok) throw new Error(`API error ${r.status}`);
@@ -452,6 +503,10 @@ async function generate(){
   hideError();
   const dv=document.getElementById('dateInput').value;
   if(!dv){ showError("Please select a date."); return; }
+  const meterNum=document.getElementById('meterSelect').value;
+  const cfg=METER_CONFIG[meterNum];
+  onMeterChange(); // keep header in sync
+
   const sTs=new Date(dv+"T00:00:00").getTime();
   const eTs=new Date(dv+"T23:59:59").getTime();
   const btn=document.getElementById('genBtn');
@@ -459,12 +514,20 @@ async function generate(){
   document.getElementById('loader').style.display='flex';
   setStatus('Fetching…',true);
   try{
-    const [mainRaw,energyRaw,powerRaw]=await Promise.all([
-      apiFetch(KEY_MAIN,sTs,eTs),
-      apiFetch(KEY_ENERGY,sTs,eTs),
-      apiFetch(KEY_POWER,sTs,eTs),
-    ]);
-    process(mainRaw,energyRaw,powerRaw);
+    const fetches=[
+      apiFetch(cfg.deviceId, cfg.keyMain,   sTs, eTs),
+      apiFetch(cfg.deviceId, cfg.keyEnergy, sTs, eTs),
+    ];
+    // Only fetch a separate power series if this meter actually has one
+    if(cfg.keyPower){
+      fetches.push(apiFetch(cfg.deviceId, cfg.keyPower, sTs, eTs));
+    }
+    const results=await Promise.all(fetches);
+    const mainRaw   = results[0];
+    const energyRaw = results[1];
+    const powerRaw  = cfg.keyPower ? results[2] : null;
+
+    process(mainRaw,energyRaw,powerRaw,cfg);
     setStatus('Updated',true);
   }catch(ex){
     showError("Failed to fetch data: "+ex.message);
@@ -479,11 +542,14 @@ async function generate(){
 /* ════════════════════════════
    PROCESS
 ════════════════════════════ */
-function process(mainRaw,energyRaw,powerRaw){
+function process(mainRaw,energyRaw,powerRaw,cfg){
 
-  /* Step 1 — Parse chiller_plant_1 JSON string values */
+  const PFX = cfg.fieldPrefix;   // e.g. "18_" for Chiller 1, "20_" for Chiller 2
+  const f   = suffix => PFX+suffix; // helper to build a field key
+
+  /* Step 1 — Parse main blob JSON string values */
   let parsedRows=[];
-  (mainRaw[KEY_MAIN]||[]).forEach(pt=>{
+  (mainRaw[cfg.keyMain]||[]).forEach(pt=>{
     let obj={};
     try{
       obj=(typeof pt.value==='object'&&pt.value!==null)?pt.value:JSON.parse(pt.value);
@@ -492,7 +558,7 @@ function process(mainRaw,energyRaw,powerRaw){
     parsedRows.push(obj);
   });
   parsedRows.sort((a,b)=>a._ts-b._ts);
-  console.log(`Parsed ${parsedRows.length} rows from ${KEY_MAIN}`);
+  console.log(`Parsed ${parsedRows.length} rows from ${cfg.keyMain}`);
 
   /* Step 2 — Hourly buckets from main telemetry */
   let hMain={};
@@ -501,39 +567,52 @@ function process(mainRaw,energyRaw,powerRaw){
     if(!hMain[h]) hMain[h]={pf:[],vRY:[],vYB:[],vBR:[],vLL:[],vRN:[],vYN:[],vBN:[],vLN:[],iR:[],iY:[],iB:[],iAvg:[],freq:[]};
     const m=hMain[h];
     const push=(arr,key)=>{ const v=num(r[key]); if(v!==null) arr.push(v); };
-    push(m.pf,  '18_Avg_PF');
-    push(m.vRY, '18_Voltage_RY');
-    push(m.vYB, '18_Voltage_YB');
-    push(m.vBR, '18_Voltage_BR');
-    push(m.vLL, '18_Avg_Voltage_LL');
-    push(m.vRN, '18_Voltage_RN');
-    push(m.vYN, '18_Voltage_YN');
-    push(m.vBN, '18_Voltage_BN');
-    push(m.vLN, '18_Avg_Voltage_LN');
-    push(m.iR,  '18_R_Current');
-    push(m.iY,  '18_Y_Current');
-    push(m.iB,  '18_B_Current');
-    push(m.iAvg,'18_Avg_Current');
-    push(m.freq,'18_Freq');
+    push(m.pf,  f('Avg_PF'));
+    push(m.vRY, f('Voltage_RY'));
+    push(m.vYB, f('Voltage_YB'));
+    push(m.vBR, f('Voltage_BR'));
+    push(m.vLL, f('Avg_Voltage_LL'));
+    push(m.vRN, f('Voltage_RN'));
+    push(m.vYN, f('Voltage_YN'));
+    push(m.vBN, f('Voltage_BN'));
+    push(m.vLN, f('Avg_Voltage_LN'));
+    push(m.iR,  f('R_Current'));
+    push(m.iY,  f('Y_Current'));
+    push(m.iB,  f('B_Current'));
+    push(m.iAvg,f('Avg_Current'));
+    push(m.freq,f('Freq'));
   });
 
   /* Step 3 — Per-minute energy → hourly sum */
   let hEnergy={};
-  (energyRaw[KEY_ENERGY]||[]).forEach(pt=>{
+  (energyRaw[cfg.keyEnergy]||[]).forEach(pt=>{
     const v=num(pt.value); if(v===null) return;
     const h=new Date(pt.ts).getHours();
     hEnergy[h]=(hEnergy[h]||0)+v;
   });
 
-  /* Step 4 — Per-minute power → hourly avg/max */
+  /* Step 4 — Active power → hourly avg/max
+     If this meter has a separate per-minute power telemetry key, use that.
+     Otherwise (e.g. Chiller 2) derive it from the power field embedded in
+     the main JSON blob. */
   let hPowerArr={}, allPower=[];
-  (powerRaw[KEY_POWER]||[]).forEach(pt=>{
-    const v=num(pt.value); if(v===null) return;
-    const h=new Date(pt.ts).getHours();
-    if(!hPowerArr[h]) hPowerArr[h]=[];
-    hPowerArr[h].push(v);
-    allPower.push(v);
-  });
+  if(cfg.keyPower && powerRaw){
+    (powerRaw[cfg.keyPower]||[]).forEach(pt=>{
+      const v=num(pt.value); if(v===null) return;
+      const h=new Date(pt.ts).getHours();
+      if(!hPowerArr[h]) hPowerArr[h]=[];
+      hPowerArr[h].push(v);
+      allPower.push(v);
+    });
+  } else if(cfg.powerField){
+    parsedRows.forEach(r=>{
+      const v=num(r[f(cfg.powerField)]); if(v===null) return;
+      const h=new Date(r._ts).getHours();
+      if(!hPowerArr[h]) hPowerArr[h]=[];
+      hPowerArr[h].push(v);
+      allPower.push(v);
+    });
+  }
 
   /* Step 5 — Unified hour list */
   const allH=Array.from(new Set([
@@ -555,10 +634,10 @@ function process(mainRaw,energyRaw,powerRaw){
   /* Electrical Summary — last snapshot */
   const last=parsedRows[parsedRows.length-1]||{};
   const g=(key,dp=2)=>{ const v=num(last[key]); return v!==null?v.toFixed(dp):'—'; };
-  document.getElementById('sVLL').textContent =g('18_Avg_Voltage_LL',1);
-  document.getElementById('sVLN').textContent =g('18_Avg_Voltage_LN',1);
-  document.getElementById('sIAvg').textContent=g('18_Avg_Current',2);
-  document.getElementById('sFreq').textContent=g('18_Freq',3);
+  document.getElementById('sVLL').textContent =g(f('Avg_Voltage_LL'),1);
+  document.getElementById('sVLN').textContent =g(f('Avg_Voltage_LN'),1);
+  document.getElementById('sIAvg').textContent=g(f('Avg_Current'),2);
+  document.getElementById('sFreq').textContent=g(f('Freq'),3);
 
   /* Chart 1 — Energy */
   Plotly.newPlot('energyChart',[{
@@ -637,18 +716,18 @@ function process(mainRaw,energyRaw,powerRaw){
       <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pctI}%;background:${color}"></div></div>
       <div class="metric-row">
         <span class="metric-label"><span class="material-icons">battery_charging_full</span> Power Factor</span>
-        <span class="metric-val">${g('18_Avg_PF',3)}</span>
+        <span class="metric-val">${g(f('Avg_PF'),3)}</span>
       </div>
       <div class="metric-row">
         <span class="metric-label"><span class="material-icons">speed</span> Frequency</span>
-        <span class="metric-val">${g('18_Freq',3)} <small style="font-weight:400;font-size:10px">Hz</small></span>
+        <span class="metric-val">${g(f('Freq'),3)} <small style="font-weight:400;font-size:10px">Hz</small></span>
       </div>
     `;
   }
 
-  document.getElementById('phaseR').innerHTML=phaseCard('R',COL_R,'#fef2f2','18_Voltage_RY','18_Voltage_RN','18_R_Current','RY','RN');
-  document.getElementById('phaseY').innerHTML=phaseCard('Y',COL_Y,'#fef3c7','18_Voltage_YB','18_Voltage_YN','18_Y_Current','YB','YN');
-  document.getElementById('phaseB').innerHTML=phaseCard('B',COL_B,'#eff6ff','18_Voltage_BR','18_Voltage_BN','18_B_Current','BR','BN');
+  document.getElementById('phaseR').innerHTML=phaseCard('R',COL_R,'#fef2f2',f('Voltage_RY'),f('Voltage_RN'),f('R_Current'),'RY','RN');
+  document.getElementById('phaseY').innerHTML=phaseCard('Y',COL_Y,'#fef3c7',f('Voltage_YB'),f('Voltage_YN'),f('Y_Current'),'YB','YN');
+  document.getElementById('phaseB').innerHTML=phaseCard('B',COL_B,'#eff6ff',f('Voltage_BR'),f('Voltage_BN'),f('B_Current'),'BR','BN');
 
   /* Table */
   let tbody='';
@@ -691,6 +770,9 @@ async function downloadPDF(){
 
     const date =
         document.getElementById("dateInput").value;
+
+    const meterNum = document.getElementById('meterSelect').value;
+    const meterLabelForFile = METER_CONFIG[meterNum].label.replace(/\s+/g,'');
 
     btn.disabled = true;
 
@@ -882,7 +964,9 @@ async function downloadPDF(){
   try{
 
     pdf.save(
-        "ChillerPlant1_DailyReport_" +
+        "ChillerPlant" +
+        meterLabelForFile.replace('Chiller','') +
+        "_DailyReport_" +
         date +
         ".pdf"
     );
@@ -906,6 +990,7 @@ finally{
 }    
 /* Init */
 document.getElementById('dateInput').value=new Date().toISOString().split('T')[0];
+onMeterChange();
 </script>
 </body>
 </html>
